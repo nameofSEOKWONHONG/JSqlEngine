@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSqlEngine", "JSqlEngine\JSqlEngine.csproj", "{64C6282B-6FE3-45B9-8B67-AD8D9F8B1522}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSqlConsole", "JSqlConsole\JSqlConsole.csproj", "{C8E2AC1E-D3CE-4E68-ACD5-E475F7EAAF6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{64C6282B-6FE3-45B9-8B67-AD8D9F8B1522}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64C6282B-6FE3-45B9-8B67-AD8D9F8B1522}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64C6282B-6FE3-45B9-8B67-AD8D9F8B1522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8E2AC1E-D3CE-4E68-ACD5-E475F7EAAF6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8E2AC1E-D3CE-4E68-ACD5-E475F7EAAF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8E2AC1E-D3CE-4E68-ACD5-E475F7EAAF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8E2AC1E-D3CE-4E68-ACD5-E475F7EAAF6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

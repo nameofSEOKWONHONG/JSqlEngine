@@ -6,17 +6,17 @@ namespace JSqlEngine;
 /// <summary>
 /// 싱글톤으로 동작해야 함.
 /// </summary>
-public class JSql : IDisposable
+public class JSqlTimer : IDisposable
 {
-    private readonly JSqlCore _jSqlCore;
+    private readonly JSqlReader _jSqlReader;
     private readonly Timer _timer;
     private bool _isWorking = false;
 
-    public string this[string name] => _jSqlCore.GetJSql(name);
+    public string this[string name] => _jSqlReader.GetJSql(name);
     
-    private JSql(string rootPath)
+    public JSqlTimer(JSqlReader jSqlReader)
     {
-        _jSqlCore = new JSqlCore(rootPath);
+        _jSqlReader = jSqlReader;
         _timer = new Timer(10 * 1000);
         _timer.Elapsed += TimerOnElapsed;
     }
@@ -26,23 +26,9 @@ public class JSql : IDisposable
         if (_isWorking == false)
         {
             _isWorking = true;
-            
-            _jSqlCore.ReReadAsync()
-                .GetAwaiter()
-                .GetResult();
-
+            _jSqlReader.Reload();
             _isWorking = false;
         }
-    }
-
-    public static JSql Create(string rootPath)
-    {
-        return new JSql(rootPath);
-    }
-
-    public async Task InitAsync()
-    {
-        await _jSqlCore.InitAsync();
     }
 
     public void ReadFor10Second()

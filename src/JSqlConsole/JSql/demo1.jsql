@@ -1,0 +1,21 @@
+function jsql(obj) {
+    const name = obj.NAME;
+    const age = obj.AGE;
+  
+    var sql = `
+    SELECT A.NAME
+        , A.AGE
+    FROM DBO.PERSON A
+    WHERE 1=1
+    `;
+
+    if(name !== '') {
+        sql += ` AND A.NAME = ${name} `;
+    }
+    
+    if(age > 0) {
+        sql += ` AND A.AGE = ${age} `;
+    }
+    
+    return sql;
+}

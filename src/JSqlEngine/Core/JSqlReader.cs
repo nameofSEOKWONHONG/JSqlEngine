@@ -1,15 +1,14 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Options;
 
 namespace JSqlEngine;
 
-public class JSqlCore
+public class JSqlReader
 {
-    //[쿼리타이틀]_[날짜]_[순번].jsql
-    //[GET_RESERVATION]_[20230927]_[1].jsql
     private readonly string _rootPath;
-    public JSqlCore(string rootPath)
+    public JSqlReader(IOptions<JSqlOption> options)
     {
-        _rootPath = rootPath;
+        _rootPath = options.Value.Path;
     }
 
     private readonly ConcurrentDictionary<string, JSqlFileInfo> _jsqlFileInfos = new();
@@ -24,12 +23,18 @@ public class JSqlCore
         return string.Empty;
     }
 
-    public async Task InitAsync()
+    public void Initialize()
     {
+        var rootFiles = SearchJSqlFiles(_rootPath);
+        foreach (var item in rootFiles)
+        {
+            _jsqlFileInfos.TryAdd(item.FileName, item);
+        }
+        
         var dirs = Directory.GetDirectories(_rootPath);
         foreach (var dir in dirs)
         {
-            var result = await SearchDirAsync(dir);
+            var result = SearchJSqlFiles(dir);
             foreach (var item in result)
             {
                 _jsqlFileInfos.TryAdd(item.FileName, item);
@@ -37,12 +42,18 @@ public class JSqlCore
         }
     }
 
-    public async Task ReReadAsync()
+    public void Reload()
     {
+        var rootFiles = SearchJSqlFiles(_rootPath);
+        foreach (var item in rootFiles)
+        {
+            _jsqlFileInfos.TryAdd(item.FileName, item);
+        }
+        
         var dirs = Directory.GetDirectories(_rootPath);
         foreach (var dir in dirs)
         {
-            var result = await SearchDirAsync(dir);
+            var result = SearchJSqlFiles(dir);
             foreach (var item in result)
             {
                 var exist = _jsqlFileInfos.FirstOrDefault(m => m.Key == item.FileName);
@@ -62,7 +73,7 @@ public class JSqlCore
         }
     }
 
-    private async Task<List<JSqlFileInfo>> SearchDirAsync(string dir)
+    private List<JSqlFileInfo> SearchJSqlFiles(string dir)
     {
         List<JSqlFileInfo> jsqls = new();
         var files = Directory.GetFiles(dir, "*.jsql");
@@ -71,7 +82,7 @@ public class JSqlCore
             var fileInfo = new FileInfo(file);
             var name = fileInfo.Name;
             var date = fileInfo.LastWriteTime;
-            var jsql = await ReadJSqlAsync(file);
+            var jsql = ReadJSqlFile(file);
             jsqls.Add(new JSqlFileInfo()
             {
                 FileName = name,
@@ -83,8 +94,8 @@ public class JSqlCore
         return jsqls;
     }
 
-    private async Task<string> ReadJSqlAsync(string file)
+    private string ReadJSqlFile(string file)
     {
-        return await File.ReadAllTextAsync(file);
+        return File.ReadAllText(file);
     }
 }
