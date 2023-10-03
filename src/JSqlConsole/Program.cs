@@ -1,4 +1,8 @@
-﻿using JSqlEngine;
+﻿using Dapper;
+using JSqlConsole;
+using JSqlConsole.Results;
+using JSqlEngine;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,53 +18,36 @@ var configuration = new ConfigurationBuilder()
 #endif
     .Build();
 
-var host = CreateHostBuilder(args, configuration)
+var host = AppHostBuilder.CreateHostBuilder(args, configuration)
     .Build()
     .UseJSql();
 
-
-using (var scope = host.Services.CreateScope())
+using var scope = host.Services.CreateScope();
+var con = scope.ServiceProvider.GetService<SqlConnection>();
+var jsql = scope.ServiceProvider.GetService<JSql>();
+var getWeatherParam = new
 {
-    var jsql = scope.ServiceProvider.GetService<JSql>();
-    var obj = new
+    TENANTID = "00000",
+    Id = 2 
+};
+var sql = jsql.Sql("GET_WEATHER", getWeatherParam);
+var exist = await con.QueryFirstOrDefaultAsync<WeatherForecast>(sql, getWeatherParam);
+if (exist != null)
+{
+    Console.WriteLine(exist.Id);
+}
+    
+var getWeatherListParam = new
+{
+    TENANTID = "00000",
+    CITY = "Seoul",
+};
+sql = jsql.Sql("GET_WEATHER_LIST", getWeatherListParam);
+var list = await con.QueryAsync<WeatherForecast>(sql, getWeatherListParam);
+if (list != null)
+{
+    foreach (var item in list)
     {
-        NAME = "TEST",
-        AGE = 18 
-    };
-    var sql = jsql.Execute("demo1.jsql", obj);
-    
-    if (!string.IsNullOrWhiteSpace(sql))
-    {
-        Console.WriteLine(sql);
-    }
-    
-    Thread.Sleep(1000 * 10);
-    
-    sql = jsql.Execute("demo1.jsql", obj);
-    
-    if (!string.IsNullOrWhiteSpace(sql))
-    {
-        Console.WriteLine(sql);
+        Console.WriteLine(item.Id);    
     }
 }
-
-
-static IHostBuilder CreateHostBuilder(string[] args, IConfigurationRoot configuration) =>
-    Host.CreateDefaultBuilder(args)
-        .ConfigureAppConfiguration(builder =>
-        {
-            builder.Sources.Clear();
-            builder.AddConfiguration(configuration);
-        })
-        .ConfigureServices((hostContext, services) =>
-        {
-            services.Configure<JSqlOption>(hostContext.Configuration.GetSection("JSqlOption"));
-            services.AddJSql();
-        })
-        .ConfigureLogging(logging =>
-        {
-            // 로깅 설정
-            logging.ClearProviders();
-            logging.AddConsole();
-        })
-        .UseConsoleLifetime(); // 콘솔 라이프타임 사용

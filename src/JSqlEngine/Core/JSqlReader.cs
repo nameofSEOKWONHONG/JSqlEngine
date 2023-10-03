@@ -85,7 +85,7 @@ public class JSqlReader
             var jsql = ReadJSqlFile(file);
             jsqls.Add(new JSqlFileInfo()
             {
-                FileName = name,
+                FileName = Path.GetFileNameWithoutExtension(fileInfo.Name),
                 FileDate = date.ToString("yyyy-MM-dd HH:mm:ss"),
                 Sql = jsql
             });

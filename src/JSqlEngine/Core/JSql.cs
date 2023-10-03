@@ -1,6 +1,4 @@
 using Jint;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace JSqlEngine;
 
@@ -33,13 +31,12 @@ public sealed class JSql
         });        
     }
 
-    public string Execute(string name, object obj)
+    public string Sql(string name, object obj)
     {
         var jsql = _jSqlReader.GetJSql(name);
         var v = _engine
-                .Execute(jsql)
-                .Invoke("jsql", obj)
-            ;
+            .Execute(jsql)
+            .Invoke("jsql", obj);
 
         return v.AsString();
     }

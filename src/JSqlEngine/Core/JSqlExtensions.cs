@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace JSqlEngine;
@@ -20,8 +21,7 @@ public static class JSqlExtensions
         engine.Initialize();
         
         var timer = host.Services.GetService<JSqlTimer>();
-        timer.ReadFor10Second();
-        
+        timer.Initialize();
         return host;
-    } 
+    }
 }
