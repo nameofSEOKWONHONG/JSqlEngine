@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using Jint;
 
-namespace JSqlEngine;
+namespace JSqlEngine.Core;
 
 public sealed class JSql
 {
@@ -33,84 +33,23 @@ public sealed class JSql
             //options.DebugMode(true);
         });        
     }
-
-    private static string SQL_CODE = "@@CODE";
     
-    private static string JSQL_TEMPLATE => """
-        function jsql(obj) {
-            var query = `
-            SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-            SET NOCOUNT ON;        
-            `;
-            
-            const isCount = false;
-            
-            @@CODE
-            
-            return query.concat(sql);
-        }
-    """;
-
-    private static string JSQL_COUNT_TEMPLATE => """
-                                                 
-                                                 function jsql(obj) {
-                                                     var query = `
-                                                     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-                                                     SET NOCOUNT ON;
-                                                     
-                                                     SELECT COUNT(*)
-                                                     FROM (
-                                                     `;
-                                                     
-                                                     const isCount = true;
-                                                     
-                                                     @@CODE
-                                                     
-                                                     query = query.concat(sql);
-                                                     
-                                                     query += ' ) A ';
-                                                     
-                                                     return query;
-                                                 }
-
-                                                 """;
-
-    private static string JSQL_PAING_TEMPLATE => """
-                                                 
-                                                 function jsql(obj) {
-                                                    var query = `
-                                                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-                                                    SET NOCOUNT ON;   
-                                                    `;
-                                                    
-                                                    const isCount = false;
-                                                    
-                                                    @@CODE
-                                                    
-                                                    query = query.concat(sql);
-                                                    query += ' OFFSET @PAGE_NUMBER ROWS FETCH NEXT @PAGE_SIZE ROWS ONLY ';
-                                                    
-                                                    return query;
-                                                 }
-
-                                                 """;
-   
-    public string Sql(string name, object o)
+    private string Sql(string name, object o)
     {
         var jsql = _jSqlReader.GetJSql(name);
         var v = _engine
-            .Execute(JSQL_TEMPLATE
-                .Replace(SQL_CODE, jsql))
+            .Execute(JSqlTemplate.JSQL_TEMPLATE
+                .Replace(JSqlTemplate.SQL_CODE, jsql))
             .Invoke("jsql", o);
 
         return v.AsString();
     }
 
-    public string CountSql(string name, object o)
+    private string CountSql(string name, object o)
     {
         var jsql = _jSqlReader.GetJSql(name);
-        var c = JSQL_COUNT_TEMPLATE
-            .Replace(SQL_CODE, jsql);
+        var c = JSqlTemplate.JSQL_COUNT_TEMPLATE
+            .Replace(JSqlTemplate.SQL_CODE, jsql);
         var v = _engine
             .Execute(c)
             .Invoke("jsql", o);
@@ -118,11 +57,11 @@ public sealed class JSql
         return v.AsString();
     }
 
-    public string PagingSql(string name, object o)
+    private string PagingSql(string name, object o)
     {
         var jsql = _jSqlReader.GetJSql(name);
-        var c = JSQL_PAING_TEMPLATE
-            .Replace(SQL_CODE, jsql);
+        var c = JSqlTemplate.JSQL_PAING_TEMPLATE
+            .Replace(JSqlTemplate.SQL_CODE, jsql);
         var v = _engine
             .Execute(c)
             .Invoke("jsql", o);

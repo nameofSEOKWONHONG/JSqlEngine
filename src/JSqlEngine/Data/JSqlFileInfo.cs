@@ -1,4 +1,4 @@
-﻿namespace JSqlEngine;
+﻿namespace JSqlEngine.Data;
 
 public class JSqlFileInfo
 {

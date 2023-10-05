@@ -1,5 +1,7 @@
 using System.Data;
 using JSqlEngine;
+using JSqlEngine.Core;
+using JSqlEngine.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

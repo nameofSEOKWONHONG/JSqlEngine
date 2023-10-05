@@ -1,8 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace JSqlEngine;
+namespace JSqlEngine.Core;
 
 public static class JSqlExtensions
 {

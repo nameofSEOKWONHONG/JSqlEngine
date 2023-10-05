@@ -2,6 +2,7 @@
 using System.Text.Json;
 using JSqlConsole;
 using JSqlEngine;
+using JSqlEngine.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

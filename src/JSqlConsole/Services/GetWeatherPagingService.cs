@@ -1,5 +1,6 @@
 using JSqlConsole.Results;
 using JSqlEngine;
+using JSqlEngine.Core;
 using Microsoft.Data.SqlClient;
 
 namespace JSqlConsole;

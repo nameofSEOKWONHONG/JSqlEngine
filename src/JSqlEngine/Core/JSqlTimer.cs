@@ -1,5 +1,4 @@
-﻿
-namespace JSqlEngine;
+﻿namespace JSqlEngine.Core;
 
 /// <summary>
 /// 싱글톤으로 동작해야 함.

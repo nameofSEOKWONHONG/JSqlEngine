@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using JSqlEngine.Data;
 using Microsoft.Extensions.Options;
 
-namespace JSqlEngine;
+namespace JSqlEngine.Core;
 
 public class JSqlReader
 {
