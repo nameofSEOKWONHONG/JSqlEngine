@@ -1,12 +1,9 @@
-﻿using Dapper;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using JSqlConsole;
-using JSqlConsole.Results;
 using JSqlEngine;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 var configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
@@ -22,32 +19,33 @@ var host = AppHostBuilder.CreateHostBuilder(args, configuration)
     .Build()
     .UseJSql();
 
+var sw = new Stopwatch();
+sw.Start();
 using var scope = host.Services.CreateScope();
-var con = scope.ServiceProvider.GetService<SqlConnection>();
-var jsql = scope.ServiceProvider.GetService<JSql>();
-var getWeatherParam = new
+var getWeatherService = scope.ServiceProvider.GetService<GetWeatherService>();
+var weather = await getWeatherService.ExecuteAsync();
+if (weather == null)
 {
-    TENANTID = "00000",
-    Id = 2 
-};
-var sql = jsql.Sql("GET_WEATHER", getWeatherParam);
-var exist = await con.QueryFirstOrDefaultAsync<WeatherForecast>(sql, getWeatherParam);
-if (exist != null)
-{
-    Console.WriteLine(exist.Id);
+    async void insert(int i1) => await scope.ServiceProvider.GetService<SetWeatherInsertService>().ExecuteAsync(i1);
+    Enumerable.Range(1, 100).ToList().ForEach(insert);
 }
-    
-var getWeatherListParam = new
-{
-    TENANTID = "00000",
-    CITY = "Seoul",
-};
-sql = jsql.Sql("GET_WEATHER_LIST", getWeatherListParam);
-var list = await con.QueryAsync<WeatherForecast>(sql, getWeatherListParam);
+
+Thread.Sleep(1000 * 10);
+
+var getWeatherPagingService = scope.ServiceProvider.GetService<GetWeatherPagingService>();
+var result = await getWeatherPagingService.ExecuteAsync();
+
+var getWeatherListService = scope.ServiceProvider.GetService<GetWeatherListService>();
+var list = await getWeatherListService.ExecuteAsync();
 if (list != null)
 {
     foreach (var item in list)
     {
-        Console.WriteLine(item.Id);    
+        Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        }));
     }
 }
+sw.Stop();
+Console.WriteLine(sw.Elapsed.TotalSeconds);

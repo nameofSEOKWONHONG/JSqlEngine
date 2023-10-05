@@ -20,7 +20,7 @@ internal class JSqlTimer : IDisposable
 
     public void Initialize()
     {
-        _timer = new Timer(TimerOnElapsed, null, 0, 10000);
+        _timer = new Timer(TimerOnElapsed, null, 0, (1000 * 3));
     }
 
     private void TimerOnElapsed(object state)
@@ -30,7 +30,7 @@ internal class JSqlTimer : IDisposable
             _isWorking = true;
             lock (_sync)
             {
-                _jSqlReader.Reload();    
+                _jSqlReader.JSqlRead();
             }
             _isWorking = false;
         }

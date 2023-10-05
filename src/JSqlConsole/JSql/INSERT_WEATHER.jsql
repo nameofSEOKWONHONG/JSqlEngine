@@ -1,0 +1,24 @@
+var sql = `
+INSERT INTO EXAMPLE.WEATHERFORECAST
+(
+    TenantId
+    , Id
+    , City
+    , "Date"
+    , TemperatureC
+    , Summary
+    , CreatedBy
+    , CreatedOn
+)
+VALUES 
+(
+    @TENANTID
+    , @ID
+    , @CITY
+    , @DATE
+    , @TEMPERATUREC
+    , @SUMMARY
+    , @CREATEDBY
+    , @CREATEDON
+)
+`;

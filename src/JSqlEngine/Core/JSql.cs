@@ -34,11 +34,97 @@ public sealed class JSql
         });        
     }
 
+    private static string SQL_CODE = "@@CODE";
+    
+    private static string JSQL_TEMPLATE => """
+        function jsql(obj) {
+            var query = `
+            SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+            SET NOCOUNT ON;        
+            `;
+            
+            const isCount = false;
+            
+            @@CODE
+            
+            return query.concat(sql);
+        }
+    """;
+
+    private static string JSQL_COUNT_TEMPLATE => """
+                                                 
+                                                 function jsql(obj) {
+                                                     var query = `
+                                                     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                                                     SET NOCOUNT ON;
+                                                     
+                                                     SELECT COUNT(*)
+                                                     FROM (
+                                                     `;
+                                                     
+                                                     const isCount = true;
+                                                     
+                                                     @@CODE
+                                                     
+                                                     query = query.concat(sql);
+                                                     
+                                                     query += ' ) A ';
+                                                     
+                                                     return query;
+                                                 }
+
+                                                 """;
+
+    private static string JSQL_PAING_TEMPLATE => """
+                                                 
+                                                 function jsql(obj) {
+                                                    var query = `
+                                                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                                                    SET NOCOUNT ON;   
+                                                    `;
+                                                    
+                                                    const isCount = false;
+                                                    
+                                                    @@CODE
+                                                    
+                                                    query = query.concat(sql);
+                                                    query += ' OFFSET @PAGE_NUMBER ROWS FETCH NEXT @PAGE_SIZE ROWS ONLY ';
+                                                    
+                                                    return query;
+                                                 }
+
+                                                 """;
+   
     public string Sql(string name, object o)
     {
         var jsql = _jSqlReader.GetJSql(name);
         var v = _engine
-            .Execute(jsql)
+            .Execute(JSQL_TEMPLATE
+                .Replace(SQL_CODE, jsql))
+            .Invoke("jsql", o);
+
+        return v.AsString();
+    }
+
+    public string CountSql(string name, object o)
+    {
+        var jsql = _jSqlReader.GetJSql(name);
+        var c = JSQL_COUNT_TEMPLATE
+            .Replace(SQL_CODE, jsql);
+        var v = _engine
+            .Execute(c)
+            .Invoke("jsql", o);
+
+        return v.AsString();
+    }
+
+    public string PagingSql(string name, object o)
+    {
+        var jsql = _jSqlReader.GetJSql(name);
+        var c = JSQL_PAING_TEMPLATE
+            .Replace(SQL_CODE, jsql);
+        var v = _engine
+            .Execute(c)
             .Invoke("jsql", o);
 
         return v.AsString();
@@ -61,7 +147,28 @@ public sealed class JSql
     public async Task<int> ExecuteAsync(IDbConnection connection, string name, object o)
     {
         var sql = this.Sql(name, o);
-        var result = await connection.ExecuteAsync(sql, o);
+        int result = 0;
+        try
+        {
+            result = await connection.ExecuteAsync(sql, o);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
         return result;
+    }
+
+    public async Task<IEnumerable<T>> QueryPagingAsync<T>(IDbConnection connection, string name, object o)
+    {
+        var sql = this.PagingSql(name, o);
+        return await connection.QueryAsync<T>(sql, o);
+    }
+    
+    public async Task<int> QueryCountAsync(IDbConnection connection, string name, object o)
+    {
+        var sql = this.CountSql(name, o);
+        return await connection.ExecuteScalarAsync<int>(sql, o);
     }
 }

@@ -25,77 +25,41 @@ public class JSqlReader
 
     public void Initialize()
     {
-        var rootFiles = SearchJSqlFiles(_rootPath);
-        foreach (var item in rootFiles)
+        var jsqlFiles = Directory.GetFiles(_rootPath, "*.jsql", SearchOption.AllDirectories);
+        var jsqlFileInfos = ReadFile(jsqlFiles);
+        Parallel.ForEach(jsqlFileInfos, info =>
         {
-            _jsqlFileInfos.TryAdd(item.FileName, item);
-        }
-        
-        var dirs = Directory.GetDirectories(_rootPath);
-        foreach (var dir in dirs)
+            _jsqlFileInfos.AddOrUpdate(info.FileName, info, (key, oldValue) => info);
+        });
+    }
+
+    public void JSqlRead()
+    {
+        var jsqlFiles = Directory.GetFiles(_rootPath, "*.jsql", SearchOption.AllDirectories);
+        var jsqlFileInfos = ReadFile(jsqlFiles);
+        foreach (var info in jsqlFileInfos)
         {
-            var result = SearchJSqlFiles(dir);
-            foreach (var item in result)
-            {
-                _jsqlFileInfos.TryAdd(item.FileName, item);
-            }
+            _jsqlFileInfos.AddOrUpdate(info.FileName, info, (key, oldValue) => info);
         }
     }
 
-    public void Reload()
+    private List<JSqlFileInfo> ReadFile(string[] files)
     {
-        var rootFiles = SearchJSqlFiles(_rootPath);
-        foreach (var item in rootFiles)
-        {
-            _jsqlFileInfos.TryAdd(item.FileName, item);
-        }
-        
-        var dirs = Directory.GetDirectories(_rootPath);
-        foreach (var dir in dirs)
-        {
-            var result = SearchJSqlFiles(dir);
-            foreach (var item in result)
-            {
-                var exist = _jsqlFileInfos.FirstOrDefault(m => m.Key == item.FileName);
-                if (string.IsNullOrWhiteSpace(exist.Key))
-                {
-                    _jsqlFileInfos.TryAdd(item.FileName, item);    
-                }
-                else
-                {
-                    if (item.FileDate == exist.Value.FileDate) continue;
-                    if (_jsqlFileInfos.TryUpdate(exist.Key, item, exist.Value))
-                    {
-                        //
-                    }
-                }
-            }
-        }
-    }
-
-    private List<JSqlFileInfo> SearchJSqlFiles(string dir)
-    {
-        List<JSqlFileInfo> jsqls = new();
-        var files = Directory.GetFiles(dir, "*.jsql");
-        foreach (var file in files)
+        var jsqls = new List<JSqlFileInfo>(); 
+        foreach (var file in files.AsSpan())
         {
             var fileInfo = new FileInfo(file);
             var name = fileInfo.Name;
             var date = fileInfo.LastWriteTime;
-            var jsql = ReadJSqlFile(file);
+            var sql = File.ReadAllText(file);
             jsqls.Add(new JSqlFileInfo()
             {
                 FileName = Path.GetFileNameWithoutExtension(fileInfo.Name),
                 FileDate = date.ToString("yyyy-MM-dd HH:mm:ss"),
-                Sql = jsql
+                Sql = sql
             });
         }
 
         return jsqls;
-    }
-
-    private string ReadJSqlFile(string file)
-    {
-        return File.ReadAllText(file);
     }
 }

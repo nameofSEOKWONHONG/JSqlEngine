@@ -1,18 +1,12 @@
-function jsql(obj) {
-    var sql = `
-    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-    SET NOCOUNT ON;
-    
-    SELECT A.TENANTID
-        , A.ID
-        , A.City
-        , A.Date
-        , A.TemperatureC
-        , A.Summary
-    FROM EXAMPLE.WEATHERFORECASTS A WITH(NOLOCK)
-    WHERE A.TENANTID  = @TENANTID
-    AND ID = @ID
-    `;
-    
-    return sql;
-}
+var sql = `
+
+SELECT A.TENANTID
+    , A.ID
+    , A.City
+    , A.Date
+    , A.TemperatureC
+    , A.Summary
+FROM EXAMPLE.WEATHERFORECAST A WITH(NOLOCK)
+WHERE A.TENANTID  = @TENANTID
+AND ID = @ID
+`;

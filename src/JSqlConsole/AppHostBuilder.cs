@@ -1,3 +1,4 @@
+using System.Data;
 using JSqlEngine;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -18,11 +19,18 @@ public class AppHostBuilder
             })
             .ConfigureServices((hostContext, services) =>
             {
+                services.AddScoped<GetWeatherService>();
+                services.AddScoped<GetWeatherListService>();
+                services.AddScoped<GetWeatherPagingService>();
+                services.AddScoped<SetWeatherInsertService>();
+                
                 services.AddTransient<SqlConnection>(sp =>
                 {
                     var con = sp.GetService<IConfiguration>();
                     var c = con.GetConnectionString("MSSQL");
-                    return new SqlConnection(c);
+                    var sqlConnection = new SqlConnection(c);
+                    if(sqlConnection.State != ConnectionState.Open) sqlConnection.Open();
+                    return sqlConnection;
                 });
             
                 services.Configure<JSqlOption>(hostContext.Configuration.GetSection("JSqlOption"));
