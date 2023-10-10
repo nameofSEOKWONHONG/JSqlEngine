@@ -1,15 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using JSqlEngine.Data;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace JSqlEngine.Core;
 
 public static class JSqlExtensions
 {
-    public static IServiceCollection AddJSql(this IServiceCollection services)
+    public static IServiceCollection AddJSql(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<JSqlReader>()
             .AddSingleton<JSqlTimer>()
             .AddScoped<JSql>();
+
+        services.Configure<JSqlOption>(configuration.GetSection(nameof(JSqlOption)));
         
         return services;
     }

@@ -24,7 +24,7 @@ public static class JSqlExecuteExtensions
         return await sql.QueryFirstOrDefaultAsync<T>(connection, name, obj);
     }
 
-    public static async Task<int> jQueryExecuteAsync(this IDbConnection connection, JSql sql, string name, object obj)
+    public static async Task<int> jExecuteAsync(this IDbConnection connection, JSql sql, string name, object obj)
     {
         return await sql.ExecuteAsync(connection, name, obj);
     }
