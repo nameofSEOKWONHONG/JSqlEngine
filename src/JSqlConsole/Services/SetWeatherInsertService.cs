@@ -37,7 +37,7 @@ public class SetWeatherInsertService
         var result = 0;
         try
         {
-            result = await _connection.jQueryExecuteAsync(_jSql, "INSERT_WEATHER", insObj);
+            result = await _connection.jExecuteAsync(_jSql, "INSERT_WEATHER", insObj);
         }
         catch (Exception e)
         {

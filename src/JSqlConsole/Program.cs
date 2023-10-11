@@ -31,8 +31,6 @@ if (weather == null)
     Enumerable.Range(1, 100).ToList().ForEach(insert);
 }
 
-Thread.Sleep(1000 * 10);
-
 var getWeatherPagingService = scope.ServiceProvider.GetService<GetWeatherPagingService>();
 var result = await getWeatherPagingService.ExecuteAsync();
 

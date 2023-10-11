@@ -34,9 +34,8 @@ public class AppHostBuilder
                     if(sqlConnection.State != ConnectionState.Open) sqlConnection.Open();
                     return sqlConnection;
                 });
-            
-                services.Configure<JSqlOption>(hostContext.Configuration.GetSection("JSqlOption"));
-                services.AddJSql();
+
+                services.AddJSql(hostContext.Configuration);
             })
             .ConfigureLogging(logging =>
             {
