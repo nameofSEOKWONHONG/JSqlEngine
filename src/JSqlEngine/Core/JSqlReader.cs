@@ -34,7 +34,7 @@ public class JSqlReader
         });
     }
 
-    public void JSqlRead()
+    public void SequentialRead()
     {
         var jsqlFiles = Directory.GetFiles(_rootPath, "*.jsql", SearchOption.AllDirectories);
         var jsqlFileInfos = ReadFile(jsqlFiles);

@@ -29,7 +29,7 @@ internal class JSqlTimer : IDisposable
             _isWorking = true;
             lock (_sync)
             {
-                _jSqlReader.JSqlRead();
+                _jSqlReader.SequentialRead();
             }
             _isWorking = false;
         }
